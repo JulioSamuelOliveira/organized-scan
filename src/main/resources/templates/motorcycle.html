@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Motocicletas • Organized Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css}" rel="stylesheet"/>
+  <style>
+    body { background: #f6f7fb; }
+    .table thead th { white-space: nowrap; }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/motorcycle}">Organized Scan</a>
+    <div class="d-flex align-items-center gap-3">
+      <a class="btn btn-light btn-sm" th:href="@{/motorcycle/form}">Nova moto</a>
+      <a class="btn btn-outline-light btn-sm" th:href="@{/logout}">Sair</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <h1 class="h4 mb-3">Motocicletas</h1>
+
+  <div th:if="${message}" class="alert alert-success" th:text="${message}">Operação realizada com sucesso.</div>
+
+  <!-- Filtros -->
+  <form class="card card-body mb-3" method="get" th:action="@{/motorcycle}">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Portal</label>
+        <select class="form-select" name="portalId">
+          <option value="">Todos</option>
+          <option th:each="p : ${portais}" th:value="${p.id}" th:text="${p.name}"></option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Data de entrada</label>
+        <input class="form-control" type="date" name="dataEntrada"/>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" name="type">
+          <option value="">Todos</option>
+          <option th:each="t : ${tipos}" th:value="${t}" th:text="${t}"></option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Placa</label>
+        <input class="form-control" type="text" name="licensePlate" placeholder="ABC1234"/>
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+      <button class="btn btn-primary" type="submit">Filtrar</button>
+      <a class="btn btn-outline-secondary" th:href="@{/motorcycle}">Limpar</a>
+    </div>
+  </form>
+
+  <!-- Tabela -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Tipo</th>
+          <th>Placa</th>
+          <th>Chassi</th>
+          <th>RFID</th>
+          <th>Portal</th>
+          <th>Entrada</th>
+          <th>Disponível em</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(motorcycles)}">
+          <td colspan="9" class="text-center text-muted py-4">Nenhum registro encontrado.</td>
+        </tr>
+        <tr th:each="m : ${motorcycles}">
+          <td th:text="${m.id}">1</td>
+          <td th:text="${m.type}">MOTTU_SPORT_110I</td>
+          <td th:text="${m.licensePlate}">ABC1234</td>
+          <td th:text="${m.chassi}">XXXXXXXXXXXXXXX</td>
+          <td th:text="${m.rfid}">RF123</td>
+          <td th:text="${m.portal != null ? m.portal.name : '—'}">Portal A</td>
+          <td th:text="${m.entryDate}">2025-01-01</td>
+          <td th:text="${m.availabilityForecast}">2025-01-10</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" th:href="@{|/motorcycle/${m.id}/edit|}">Editar</a>
+            <form th:action="@{|/motorcycle/${m.id}|}" method="post" class="d-inline">
+              <input type="hidden" name="_method" value="delete"/>
+              <button class="btn btn-sm btn-outline-danger" type="submit"
+                      onclick="return confirm('Deseja remover esta moto?');">
+                Remover
+              </button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
