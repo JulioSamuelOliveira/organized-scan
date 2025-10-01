@@ -25,11 +25,23 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class MotorcycleController {
 
-    private final MotorcycleService motorcycleService;   // serviço da sua entidade
-    private final PortalRepository portalRepository;     // para listar/validar portais
-    private final MessageHelper messageHelper;           // mensagens i18n (sucesso/erro)
+    private final MotorcycleService motorcycleService;
+    private final PortalRepository portalRepository;
+    private final MessageHelper messageHelper;
 
-    // LISTA com filtros (portal, data de entrada, tipo, placa) + envia enums e portais para filtros
+    // ---------- Helper para consolidar o ID do Portal ----------
+    private Long resolvePortalId(Long portalIdParam, Motorcycle motorcycle, Motorcycle antigo) {
+        if (portalIdParam != null) return portalIdParam;
+        if (motorcycle != null && motorcycle.getPortal() != null && motorcycle.getPortal().getId() != null) {
+            return motorcycle.getPortal().getId();
+        }
+        if (antigo != null && antigo.getPortal() != null && antigo.getPortal().getId() != null) {
+            return antigo.getPortal().getId();
+        }
+        return null;
+    }
+
+    // LISTA com filtros
     @GetMapping
     public String index(@RequestParam(required = false) Long portalId,
                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntrada,
@@ -39,7 +51,6 @@ public class MotorcycleController {
                         @AuthenticationPrincipal OAuth2User user) {
 
         List<Motorcycle> motorcycles = motorcycleService.buscarComFiltros(portalId, dataEntrada, type, licensePlate);
-
         List<Portal> portais = portalRepository.findAll();
         List<MotorcycleType> tipos = Arrays.asList(MotorcycleType.values());
 
@@ -47,7 +58,7 @@ public class MotorcycleController {
         model.addAttribute("portais", portais);
         model.addAttribute("tipos", tipos);
         model.addAttribute("user", user);
-        return "motorcycle"; // view: src/main/resources/templates/motorcycle.html
+        return "motorcycle"; // templates/motorcycle.html
     }
 
     // FORM de criação
@@ -60,7 +71,7 @@ public class MotorcycleController {
         model.addAttribute("portais", portais);
         model.addAttribute("tipos", tipos);
         model.addAttribute("user", user);
-        return "form-motorcycle"; // view: templates/form-motorcycle.html
+        return "form-motorcycle"; // templates/form-motorcycle.html
     }
 
     // CRIAR
@@ -71,15 +82,12 @@ public class MotorcycleController {
                          @RequestParam(required = false) Long portalId) {
         if (result.hasErrors()) return "form-motorcycle";
 
-        // garante que o Portal existe (funciona se vier portal.id no form ou um portalId solto)
-        Long pid = portalId;
-        if (pid == null && motorcycle.getPortal() != null) {
-            pid = motorcycle.getPortal().getId();
-        }
+        Long pid = resolvePortalId(portalId, motorcycle, null);
         if (pid == null) {
             result.rejectValue("portal", "portal.required", "O portal deve ser informado");
             return "form-motorcycle";
         }
+
         Portal portal = portalRepository.findById(pid)
                 .orElseThrow(() -> new NoSuchElementException("Portal %d não encontrado".formatted(pid)));
         motorcycle.setPortal(portal);
@@ -111,26 +119,19 @@ public class MotorcycleController {
                          RedirectAttributes redirect,
                          @RequestParam(required = false) Long portalId) {
         if (result.hasErrors()) {
-            // mantém o id no objeto para reexibir corretamente no form
             motorcycle.setId(id);
             return "form-motorcycle";
         }
 
         Motorcycle antigo = motorcycleService.getById(id);
 
-        // consolida portal
-        Long pid = portalId;
-        if (pid == null && motorcycle.getPortal() != null) {
-            pid = motorcycle.getPortal().getId();
-        }
-        if (pid == null && antigo.getPortal() != null) {
-            pid = antigo.getPortal().getId();
-        }
+        Long pid = resolvePortalId(portalId, motorcycle, antigo);
         if (pid == null) {
             result.rejectValue("portal", "portal.required", "O portal deve ser informado");
             motorcycle.setId(id);
             return "form-motorcycle";
         }
+
         Portal portal = portalRepository.findById(pid)
                 .orElseThrow(() -> new NoSuchElementException("Portal %d não encontrado".formatted(pid)));
 
@@ -150,7 +151,7 @@ public class MotorcycleController {
         return "redirect:/motorcycle";
     }
 
-    // DELETAR (simples; se você tiver vínculos como "movimentos", trate aqui como no seu exemplo)
+    // DELETAR
     @DeleteMapping("{id}")
     public String delete(@PathVariable Long id, RedirectAttributes redirect) {
         motorcycleService.deleteById(id);
@@ -158,7 +159,7 @@ public class MotorcycleController {
         return "redirect:/motorcycle";
     }
 
-    // LISTA por portal (visão semelhante ao /leitor-moto/{leitorId} do seu exemplo)
+    // LISTA por portal específico
     @GetMapping("/portal/{portalId}")
     public String porPortal(@PathVariable Long portalId,
                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntrada,
@@ -170,7 +171,6 @@ public class MotorcycleController {
                 .orElseThrow(() -> new NoSuchElementException("Portal %d não encontrado".formatted(portalId)));
 
         List<Motorcycle> motorcycles = motorcycleService.buscarComFiltros(portalId, dataEntrada, type, licensePlate);
-
         List<Portal> portais = portalRepository.findAll();
         List<MotorcycleType> tipos = Arrays.asList(MotorcycleType.values());
 
@@ -180,6 +180,6 @@ public class MotorcycleController {
         model.addAttribute("tipos", tipos);
         model.addAttribute("user", user);
 
-        return "portal-motorcycle"; // view: templates/portal-motorcycle.html
+        return "portal-motorcycle"; // templates/portal-motorcycle.html
     }
 }

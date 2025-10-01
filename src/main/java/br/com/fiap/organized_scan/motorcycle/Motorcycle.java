@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,9 +28,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-
 public class Motorcycle {
-    
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -48,6 +48,7 @@ public class Motorcycle {
     private String rfid;
 
     @ManyToOne
+    @JoinColumn(name = "portal") // <<< garante coluna 'portal' no banco
     @NotNull(message = "O portal deve ser informado")
     private Portal portal;
 
@@ -61,5 +62,4 @@ public class Motorcycle {
     @NotNull(message = "A previsão de disponibilidade é obrigatória")
     @FutureOrPresent(message = "A previsão de disponibilidade deve estar no presente ou no futuro")
     private LocalDate availabilityForecast;
-
 }
