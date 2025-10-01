@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=organizedscan'
+      - 'POSTGRES_PASSWORD=organizedscan'
+      - 'POSTGRES_USER=organizedscan'
+    ports:
+      - '5432:5432'
