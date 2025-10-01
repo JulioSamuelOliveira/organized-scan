@@ -29,11 +29,9 @@ import lombok.NoArgsConstructor;
 @Entity
 
 public class Motorcycle {
+    
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "A filial é obrigatória")
-    private String branch;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "O tipo de moto é obrigatório")
@@ -44,8 +42,7 @@ public class Motorcycle {
     private String licensePlate;
 
     @NotBlank(message = "O chassi é obrigatório")
-    @Size(min = 17, max = 17, message = "O chassi deve ter exatamente 17 caracteres")
-    private String chassis;
+    private String chassi;
 
     @NotBlank(message = "RFID é um campo obrigatório")
     private String rfid;
