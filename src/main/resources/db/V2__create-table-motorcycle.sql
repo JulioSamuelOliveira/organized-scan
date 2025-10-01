@@ -12,19 +12,17 @@ create table if not exists motorcycle (
   chassi                 varchar(255) not null,
   rfid                   varchar(255) not null,
 
-  -- FK sem sufixo _id (como você usou no JPA)
-  portal                 bigint       not null
-    references portal(id),
+  portal                 bigint not null references portal(id),
 
   problem_description    varchar(500),
   constraint ck_motorcycle_problem_desc_len
     check (problem_description is null or length(problem_description) between 10 and 500),
 
-  entry_date             date         not null,
+  entry_date             date not null,
   constraint ck_motorcycle_entry_date_past_or_present
     check (entry_date <= current_date),
 
-  availability_forecast  date         not null,
+  availability_forecast  date not null,
   constraint ck_motorcycle_availability_forecast_future_or_present
     check (availability_forecast >= current_date)
 );

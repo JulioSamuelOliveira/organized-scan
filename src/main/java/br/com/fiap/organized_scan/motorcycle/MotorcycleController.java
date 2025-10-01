@@ -29,7 +29,7 @@ public class MotorcycleController {
     private final PortalRepository portalRepository;
     private final MessageHelper messageHelper;
 
-    // ---------- Helper para consolidar o ID do Portal ----------
+    // ---------- Helper: consolida o ID do Portal ----------
     private Long resolvePortalId(Long portalIdParam, Motorcycle motorcycle, Motorcycle antigo) {
         if (portalIdParam != null) return portalIdParam;
         if (motorcycle != null && motorcycle.getPortal() != null && motorcycle.getPortal().getId() != null) {
@@ -43,12 +43,14 @@ public class MotorcycleController {
 
     // LISTA com filtros
     @GetMapping
-    public String index(@RequestParam(required = false) Long portalId,
-                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntrada,
-                        @RequestParam(required = false) MotorcycleType type,
-                        @RequestParam(required = false) String licensePlate,
-                        Model model,
-                        @AuthenticationPrincipal OAuth2User user) {
+    public String index(
+            @RequestParam(name = "portalId", required = false) Long portalId,
+            @RequestParam(name = "dataEntrada", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntrada,
+            @RequestParam(name = "type", required = false) MotorcycleType type,
+            @RequestParam(name = "licensePlate", required = false) String licensePlate,
+            Model model,
+            @AuthenticationPrincipal OAuth2User user) {
 
         List<Motorcycle> motorcycles = motorcycleService.buscarComFiltros(portalId, dataEntrada, type, licensePlate);
         List<Portal> portais = portalRepository.findAll();
@@ -79,7 +81,7 @@ public class MotorcycleController {
     public String create(@Valid Motorcycle motorcycle,
                          BindingResult result,
                          RedirectAttributes redirect,
-                         @RequestParam(required = false) Long portalId) {
+                         @RequestParam(name = "portalId", required = false) Long portalId) {
         if (result.hasErrors()) return "form-motorcycle";
 
         Long pid = resolvePortalId(portalId, motorcycle, null);
@@ -99,7 +101,7 @@ public class MotorcycleController {
 
     // EDITAR (carrega formulário)
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal OAuth2User user) {
+    public String edit(@PathVariable(name = "id") Long id, Model model, @AuthenticationPrincipal OAuth2User user) {
         Motorcycle motorcycle = motorcycleService.getById(id);
         List<Portal> portais = portalRepository.findAll();
         List<MotorcycleType> tipos = Arrays.asList(MotorcycleType.values());
@@ -113,11 +115,11 @@ public class MotorcycleController {
 
     // ATUALIZAR
     @PostMapping("/{id}")
-    public String update(@PathVariable Long id,
+    public String update(@PathVariable(name = "id") Long id,
                          @Valid Motorcycle motorcycle,
                          BindingResult result,
                          RedirectAttributes redirect,
-                         @RequestParam(required = false) Long portalId) {
+                         @RequestParam(name = "portalId", required = false) Long portalId) {
         if (result.hasErrors()) {
             motorcycle.setId(id);
             return "form-motorcycle";
@@ -153,7 +155,7 @@ public class MotorcycleController {
 
     // DELETAR
     @DeleteMapping("{id}")
-    public String delete(@PathVariable Long id, RedirectAttributes redirect) {
+    public String delete(@PathVariable(name = "id") Long id, RedirectAttributes redirect) {
         motorcycleService.deleteById(id);
         redirect.addFlashAttribute("message", messageHelper.get("motorcycle.delete.success"));
         return "redirect:/motorcycle";
@@ -161,12 +163,14 @@ public class MotorcycleController {
 
     // LISTA por portal específico
     @GetMapping("/portal/{portalId}")
-    public String porPortal(@PathVariable Long portalId,
-                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntrada,
-                            @RequestParam(required = false) MotorcycleType type,
-                            @RequestParam(required = false) String licensePlate,
+    public String porPortal(@PathVariable(name = "portalId") Long portalId,
+                            @RequestParam(name = "dataEntrada", required = false)
+                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataEntrada,
+                            @RequestParam(name = "type", required = false) MotorcycleType type,
+                            @RequestParam(name = "licensePlate", required = false) String licensePlate,
                             Model model,
                             @AuthenticationPrincipal OAuth2User user) {
+
         Portal portal = portalRepository.findById(portalId)
                 .orElseThrow(() -> new NoSuchElementException("Portal %d não encontrado".formatted(portalId)));
 
