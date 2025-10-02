@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -28,6 +27,17 @@ public class MotorcycleController {
     private final MotorcycleService motorcycleService;
     private final PortalRepository portalRepository;
     private final MessageHelper messageHelper;
+
+    // ---------- Atributos globais para as views deste controller ----------
+    @ModelAttribute("tipos")
+    public MotorcycleType[] tipos() {
+        return MotorcycleType.values();
+    }
+
+    @ModelAttribute("portais")
+    public List<Portal> portais() {
+        return portalRepository.findAll();
+    }
 
     // ---------- Helper: consolida o ID do Portal ----------
     private Long resolvePortalId(Long portalIdParam, Motorcycle motorcycle, Motorcycle antigo) {
@@ -53,12 +63,7 @@ public class MotorcycleController {
             @AuthenticationPrincipal OAuth2User user) {
 
         List<Motorcycle> motorcycles = motorcycleService.buscarComFiltros(portalId, dataEntrada, type, licensePlate);
-        List<Portal> portais = portalRepository.findAll();
-        List<MotorcycleType> tipos = Arrays.asList(MotorcycleType.values());
-
         model.addAttribute("motorcycles", motorcycles);
-        model.addAttribute("portais", portais);
-        model.addAttribute("tipos", tipos);
         model.addAttribute("user", user);
         return "motorcycle"; // templates/motorcycle.html
     }
@@ -66,23 +71,26 @@ public class MotorcycleController {
     // FORM de criação
     @GetMapping("/form")
     public String form(Model model, @AuthenticationPrincipal OAuth2User user) {
-        List<Portal> portais = portalRepository.findAll();
-        List<MotorcycleType> tipos = Arrays.asList(MotorcycleType.values());
-
-        model.addAttribute("motorcycle", new Motorcycle());
-        model.addAttribute("portais", portais);
-        model.addAttribute("tipos", tipos);
+        if (!model.containsAttribute("motorcycle")) {
+            model.addAttribute("motorcycle", new Motorcycle());
+        }
+        long portaisCount = portalRepository.count();
+        model.addAttribute("portaisCount", portaisCount);
         model.addAttribute("user", user);
-        return "form-motorcycle"; // templates/form-motorcycle.html
-    }
+        return "form-motorcycle";
+}
 
     // CRIAR
     @PostMapping("/form")
-    public String create(@Valid Motorcycle motorcycle,
+    public String create(@Valid @ModelAttribute("motorcycle") Motorcycle motorcycle,
                          BindingResult result,
                          RedirectAttributes redirect,
-                         @RequestParam(name = "portalId", required = false) Long portalId) {
-        if (result.hasErrors()) return "form-motorcycle";
+                         @RequestParam(name = "portalId", required = false) Long portalId,
+                         Model model) {
+
+        if (result.hasErrors()) {
+            return "form-motorcycle";
+        }
 
         Long pid = resolvePortalId(portalId, motorcycle, null);
         if (pid == null) {
@@ -99,27 +107,27 @@ public class MotorcycleController {
         return "redirect:/motorcycle";
     }
 
-    // EDITAR (carrega formulário)
+// EDITAR (carrega formulário)
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable(name = "id") Long id, Model model, @AuthenticationPrincipal OAuth2User user) {
+    public String edit(@PathVariable(name = "id") Long id,
+        Model model,
+        @AuthenticationPrincipal OAuth2User user) {
         Motorcycle motorcycle = motorcycleService.getById(id);
-        List<Portal> portais = portalRepository.findAll();
-        List<MotorcycleType> tipos = Arrays.asList(MotorcycleType.values());
-
         model.addAttribute("motorcycle", motorcycle);
-        model.addAttribute("portais", portais);
-        model.addAttribute("tipos", tipos);
+        model.addAttribute("portaisCount", portalRepository.count());
         model.addAttribute("user", user);
-        return "form-motorcycle";
-    }
+    return "form-motorcycle";
+}
 
     // ATUALIZAR
     @PostMapping("/{id}")
     public String update(@PathVariable(name = "id") Long id,
-                         @Valid Motorcycle motorcycle,
+                         @Valid @ModelAttribute("motorcycle") Motorcycle motorcycle,
                          BindingResult result,
                          RedirectAttributes redirect,
-                         @RequestParam(name = "portalId", required = false) Long portalId) {
+                         @RequestParam(name = "portalId", required = false) Long portalId,
+                         Model model) {
+
         if (result.hasErrors()) {
             motorcycle.setId(id);
             return "form-motorcycle";
@@ -175,15 +183,10 @@ public class MotorcycleController {
                 .orElseThrow(() -> new NoSuchElementException("Portal %d não encontrado".formatted(portalId)));
 
         List<Motorcycle> motorcycles = motorcycleService.buscarComFiltros(portalId, dataEntrada, type, licensePlate);
-        List<Portal> portais = portalRepository.findAll();
-        List<MotorcycleType> tipos = Arrays.asList(MotorcycleType.values());
 
         model.addAttribute("portalSelecionado", portal);
         model.addAttribute("motorcycles", motorcycles);
-        model.addAttribute("portais", portais);
-        model.addAttribute("tipos", tipos);
         model.addAttribute("user", user);
-
-        return "portal-motorcycle"; // templates/portal-motorcycle.html
+        return "portal-motorcycle"; // templates/portal-motorcycle.html (se estiver usando)
     }
 }

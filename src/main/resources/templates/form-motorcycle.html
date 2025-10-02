@@ -50,10 +50,11 @@
       <div class="col-md-4">
         <label class="form-label">Portal</label>
         <!-- Bind direto em portal.id (o controller também aceita portalId via @RequestParam, se preferir) -->
-        <select class="form-select" th:field="*{portal.id}" required>
-          <option value="">Selecione</option>
-          <option th:each="p : ${portais}" th:value="${p.id}" th:text="${p.name}"></option>
-        </select>
+      <select class="form-select" th:field="*{portal.id}" required>
+        <option value="">Selecione</option>
+        <option th:each="p : ${portais}" th:value="${p.id}" th:text="${p.name}"></option>
+      </select>
+
         <div class="text-danger small" th:if="${#fields.hasErrors('portal')}" th:errors="*{portal}"></div>
       </div>
 
