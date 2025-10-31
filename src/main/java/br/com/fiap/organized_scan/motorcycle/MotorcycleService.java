@@ -46,7 +46,7 @@ public class MotorcycleService {
         return repository.findAll(spec, Sort.by(Sort.Direction.DESC, "id"));
     }
 
-    /** Busca por ID (404 se não existir) */
+    /** Busca por ID */
     public Motorcycle getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Motorcycle %d não encontrada".formatted(id)));

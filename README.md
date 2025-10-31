@@ -45,8 +45,8 @@ Defina as variáveis para o OAuth do GitHub (e DB, se necessário):
 
 **Linux/macOS (bash/zsh):**
 ```bash
-export GITHUB_CLIENT_ID=<seu_client_id>
-export GITHUB_CLIENT_SECRET=<seu_client_secret>
+export GITHUB_CLIENT_ID=Ov23liTzKRI5A47nomHv
+export GITHUB_CLIENT_SECRET=fe8972c251403be3599a5f66c870ba7cfb145512
 
 # Opcional, se quiser sobrepor
 export DB_URL=jdbc:postgresql://127.0.0.1:5432/organizedscan
@@ -56,8 +56,8 @@ export DB_PASS=postgres
 
 **Windows (PowerShell):**
 ```powershell
-setx GITHUB_CLIENT_ID "<seu_client_id>"
-setx GITHUB_CLIENT_SECRET "<seu_client_secret>"
+setx GITHUB_CLIENT_ID "Ov23liTzKRI5A47nomHv"
+setx GITHUB_CLIENT_SECRET "<fe8972c251403be3599a5f66c870ba7cfb145512"
 setx DB_URL "jdbc:postgresql://127.0.0.1:5432/organizedscan"
 setx DB_USER "postgres"
 setx DB_PASS "postgres"
