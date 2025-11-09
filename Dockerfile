@@ -17,4 +17,5 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 EXPOSE 8080
 
 # Executa a aplicação
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar app.jar ${BOOT_ARGS}"]
+
