@@ -1,7 +1,7 @@
 # Organized Scan
 
-Aplicação *Spring Boot + Thymeleaf* para gestão de motocicletas, com *autenticação OAuth2 (GitHub)* e *PostgreSQL*.  
-Inclui CRUDs de *Motorcycle* e *Portal*.
+Aplicação **Spring Boot + Thymeleaf** para gestão de motocicletas, com **autenticação OAuth2 (GitHub)** e **PostgreSQL**.  
+Inclui CRUDs de **Motorcycle** e **Portal**. **✅ Deploy de produção funcionando no Render**.
 
 ## 👥 Participantes
 
@@ -43,13 +43,8 @@ cd organized-scan
 
 Defina as variáveis para o OAuth do GitHub:
 
-
-
-
 GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
 GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
-
-
 
 ---
 
@@ -173,6 +168,11 @@ Primeiro acesso pedirá login via *GitHub*.
 > Os formulários utilizam *Thymeleaf* com Bootstrap 5.
 
 ---
+
+## URL para utilizar o deploy
+
+ *https://organized-scan.onrender.com/motorcycle*
+ *https://organized-scan.onrender.com/portal*
 
 ## 🧪 Build & Testes
 
